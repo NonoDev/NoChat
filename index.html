@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <title>NoChat</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script src="https://code.jquery.com/jquery.js"></script>
+        
+        <style type="text/css">
+            #chat{
+                position: relative;
+                width: 100%;
+                float: left;
+                min-height: 100%;
+                height: 90%;
+                overflow: auto;
+            }
+        </style>
+        
+    </head>
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <h1>ChachiPandi Chat molón, <small>developed by <a href="http://nonodev.es" target="_blank">Nono</a></small></h1>
+            </div>
+            <div id="content" class="row" style="height: 70%;">
+                <!-- Parte superior del chat -->
+                <div class="col-md-2">
+                    
+                </div>
+                <!-- Cuerpo del chat -->
+                <div id="chatContent" class="col-xs-12 col-md-8">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                          CHAT  
+                        </div>
+                        <div id="chat" class="panel-body"></div>
+                        
+                    </div>
+                    <!-- Input de entrada del chat -->
+                    <div>
+                        <form id="sendMessage" class="input-group" style="text-align: center; margin: 0 auto">
+                            <div class="input-group" style="margin-bottom: 20px; margin-top: 20px;">
+                                  <input id="message" class="form-control input-lg" type="text" autofocus="autofocus"/>
+                                  <span class="input-group-btn"><button class="btn btn-lg btn-primary" type="submit">Enviar</button></span>
+                            </div>
+                           
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            function getDateTime() {
+
+                var date = new Date();
+            
+                var hour = date.getHours();
+                hour = (hour < 10 ? "0" : "") + hour;
+            
+                var min  = date.getMinutes();
+                min = (min < 10 ? "0" : "") + min;
+            
+                var sec  = date.getSeconds();
+                sec = (sec < 10 ? "0" : "") + sec;
+            
+                var year = date.getFullYear();
+            
+                var month = date.getMonth() + 1;
+                month = (month < 10 ? "0" : "") + month;
+            
+                var day  = date.getDate();
+                day = (day < 10 ? "0" : "") + day;
+            
+                return hour + ":" + min + ":" + sec;
+
+}
+            
+            // conectar los sockets
+            jQuery(function($) {
+               var socket = io.connect(); 
+               var $messageForm = $('#sendMessage');
+               var $message = $('#message');
+               var $chat = $('#chat');
+               var $altura;
+               
+               $messageForm.submit(function(e) {
+                  e.preventDefault();
+                  $altura = $('#chat').height();
+                  if($message.val()!=='') socket.emit('sendMessage', $message.val());
+                  $message.val('');
+                  // Funcion que lleva el scroll al final del panel del chat
+                  $chat.animate({"scrollTop": $('#chat')[0].scrollHeight}, "slow");
+               });
+               
+               socket.on('newMessage', function(data){
+                  $chat.append('<font style="font-weight: bold; color: #377CFC;">'+getDateTime()+'</font> - '+data.msg+'<br/>'); 
+               });
+            });
+            
+            
+        </script>
+        
+    </body>
+</html>
